@@ -17,4 +17,4 @@ jobs:
       - name: Build Trade Processor
         run: |
           cd java/trade_processor/trade_processor
-          mvn clean install
+          mvn clean install -B
