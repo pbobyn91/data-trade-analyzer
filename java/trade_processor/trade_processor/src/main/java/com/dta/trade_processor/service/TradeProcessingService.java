@@ -1,6 +1,8 @@
 package com.dta.trade_processor.service;
 
+import com.dta.trade_processor.model.ProcessedTradeEvent;
 import com.dta.trade_processor.model.RawTradeEvent;
+import com.dta.trade_processor.model.RiskScore;
 import com.dta.trade_processor.service.validation.ValidationResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,10 +18,32 @@ public class TradeProcessingService {
     private ObjectMapper objectMapper;
 
     public String processValidTrade(RawTradeEvent rawTradeEvent) {
-        // Implement trade processing logic here
-        // Convert to a logger
-        log.info("Processing trade: {}", rawTradeEvent);
-        return "processed-trade-json";
+        long startTime = System.currentTimeMillis();
+
+        RiskScore riskScore = rawTradeEvent.getPrice() < 10.00 ? RiskScore.HIGH : RiskScore.LOW;
+
+        // Create ProcessedTradeEvent
+        ProcessedTradeEvent processedTradeEvent = new ProcessedTradeEvent();
+        processedTradeEvent.setTradeId(rawTradeEvent.getTradeId());
+        processedTradeEvent.setSymbol(rawTradeEvent.getSymbol());
+        processedTradeEvent.setPrice(rawTradeEvent.getPrice());
+        processedTradeEvent.setVolume(rawTradeEvent.getVolume());
+        processedTradeEvent.setRiskScore(riskScore);
+        processedTradeEvent.setValidationStatus(true);
+        processedTradeEvent.setProcessedAt(System.currentTimeMillis());
+
+        try {
+            String processedJson = objectMapper.writeValueAsString(processedTradeEvent);
+
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Trade processed successfully - tradeId: {}, riskScore: {}, duration: {} ms",
+                    rawTradeEvent.getTradeId(), riskScore, duration);
+
+            return processedJson;
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize ProcessedTradeEvent: {}", e.getMessage());
+            throw new RuntimeException("Serialization failed", e);
+        }
     }
 
     public ValidationResult validateAndParse(String rawTradeJson) {

@@ -8,7 +8,7 @@ public class ProcessedTradeEvent {
     private String symbol;
     private Double price;
     private Integer volume;
-    private String riskScore;
+    private RiskScore riskScore;
     private Boolean validationStatus;
     private Long processedAt;
 }
