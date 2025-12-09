@@ -18,3 +18,7 @@ jobs:
         run: |
           cd java/trade_processor/trade_processor
           mvn clean install -B
+      - name: Build Data Aggregator
+        run: |
+          cd java/data_aggregator/data_aggregator
+          mvn clean install -B
